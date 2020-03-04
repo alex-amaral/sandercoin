@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll",
+    "test:coverage": "jest --coverage",
     "start": "node index.js",
     "dev": "npm run start-redis && nodemon index.js",
     "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
