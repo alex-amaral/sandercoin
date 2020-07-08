@@ -1,0 +1,13 @@
+{
+  "name": "Sandercoin Api documentation",
+  "version": "1.0.0",
+  "description": "Documentation for the REST api access provided at Sandercoin",
+  "title": "Custom apiDoc browser title",
+  "url" : "https://api.example.com",
+  "sampleUrl": "https://apidoc.free.beeceptor.com",
+  "template": {
+    "withCompare": true,
+    "withGenerator": true,
+    "aloneDisplay": false
+  }
+}

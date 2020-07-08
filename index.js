@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const request = require('request');
 const Blockchain = require('./blockchain');
@@ -19,22 +20,31 @@ const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
 
 app.use(bodyParser.json());
+app.use(cors());
 
-app.get('/api/blocks', (req, res) => {
+/**
+ * @api {get} /blocks Retrieve chain of blocks
+ */
+app.get('/blocks', (req, res) => {
   res.json(blockchain.chain);
 });
 
-app.post('/api/mine', (req, res) => {
+/**
+ * @api {post} /mine Add data block to the blockchain and broadcast chain
+ *
+ * @apiSuccess {[Block]} blocks Chain of blocks
+ */
+app.post('/mine', (req, res) => {
   const { data } = req.body;
 
   blockchain.addBlock({ data });
 
   pubsub.broadcastChain();
 
-  res.redirect('/api/blocks');
+  res.redirect('/blocks');
 });
 
-app.post('/api/transact', (req, res) => {
+app.post('/transact', (req, res) => {
   const { amount, recipient } = req.body;
 
   let transaction = transactionPool
@@ -61,17 +71,17 @@ app.post('/api/transact', (req, res) => {
   res.json({ type: 'success', transaction });
 });
 
-app.get('/api/transaction-pool-map', (req, res) => {
+app.get('/transaction-pool-map', (req, res) => {
   res.json(transactionPool.transactionMap);
 });
 
-app.get('/api/mine-transactions', (req, res) => {
+app.get('/mine-transactions', (req, res) => {
   transactionMiner.mineTransactions();
 
-  res.redirect('/api/blocks');
+  res.redirect('/blocks');
 });
 
-app.get('/api/wallet-info', (req, res) => {
+app.get('/wallet-info', (req, res) => {
   const address= wallet.publicKey;
 
   res.json({
@@ -81,7 +91,7 @@ app.get('/api/wallet-info', (req, res) => {
 });
 
 const syncWithRootState = () => {
-  request({ url: `${ROOT_NODE_ADDRESS}/api/blocks` }, (error, response, body) => {
+  request({ url: `${ROOT_NODE_ADDRESS}/blocks` }, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootChain = JSON.parse(body);
 
@@ -90,7 +100,7 @@ const syncWithRootState = () => {
     }
   });
 
-  request({ url: `${ROOT_NODE_ADDRESS}/api/transaction-pool-map` }, (error, response, body) => {
+  request({ url: `${ROOT_NODE_ADDRESS}/transaction-pool-map` }, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootTransactionPoolMap = JSON.parse(body);
 
